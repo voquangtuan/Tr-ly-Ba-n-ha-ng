@@ -41,24 +41,6 @@ export default function App() {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState("");
-  const [hasApiKey, setHasApiKey] = useState(true);
-
-  useEffect(() => {
-    const checkApiKey = async () => {
-      if (typeof window.aistudio !== 'undefined') {
-        const has = await window.aistudio.hasSelectedApiKey();
-        setHasApiKey(has);
-      }
-    };
-    checkApiKey();
-  }, []);
-
-  const handleSelectApiKey = async () => {
-    if (typeof window.aistudio !== 'undefined') {
-      await window.aistudio.openSelectKey();
-      setHasApiKey(true);
-    }
-  };
 
   useEffect(() => {
     if (toast) {
@@ -121,15 +103,6 @@ export default function App() {
     setPreviews([]);
     setToast("");
     try {
-      // Check for API key if using paid models
-      if (typeof window.aistudio !== 'undefined') {
-        const has = await window.aistudio.hasSelectedApiKey();
-        if (!has) {
-          await window.aistudio.openSelectKey();
-          setHasApiKey(true);
-        }
-      }
-
       // Pre-crop the model image to the target aspect ratio
       const croppedModelFile = await cropImageToAspectRatio(model.file, aspect);
       const croppedModel: UploadedFile = {
@@ -177,19 +150,6 @@ export default function App() {
               </svg>
               Trợ Lý Tạo Ảnh Bán Hàng Miễn Phí
             </h1>
-            {!hasApiKey && (
-              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col items-center gap-3">
-                <p className="text-sm text-amber-800 font-medium">
-                  API Key của bạn đã bị lộ hoặc không hợp lệ. Vui lòng cấu hình API Key mới.
-                </p>
-                <button
-                  onClick={handleSelectApiKey}
-                  className="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm font-semibold hover:bg-amber-700 transition-colors shadow-sm"
-                >
-                  Cấu hình API Key mới
-                </button>
-              </div>
-            )}
             <p className="mt-4 text-base sm:text-lg font-semibold text-slate-700">
               Ứng dụng được xây dựng bởi Biệt Đội đến từ thương hiệu <span className="font-bold text-teal-600">Sâm Dây Lâm Thịnh 🌿</span>
             </p>

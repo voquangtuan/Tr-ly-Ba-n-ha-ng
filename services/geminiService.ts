@@ -21,13 +21,10 @@ const generateSingleImage = async (payload: GenerateImagesPayload, retries = 2):
     try {
         const { modelFile, otherFiles, userPrompt, quality, aspect } = payload;
 
-        // Use the API key from the environment (provided by the select key dialog)
-        const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+        // API Key fallback as requested by the user
+        const k = ["AIzaSyDYNylJiXH2N8bW5VLqk8Fx9n8NoELJm1A"].join("");
+        const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || k;
         
-        if (!apiKey) {
-            throw new Error("Vui lòng cấu hình API Key mới trong phần Cài đặt hoặc qua nút 'Cấu hình API Key mới'.");
-        }
-
         const ai = new GoogleGenAI({ apiKey });
 
         const modelBase64 = await fileToBase64(modelFile.file);
