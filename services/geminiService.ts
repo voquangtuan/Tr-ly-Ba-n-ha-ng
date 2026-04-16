@@ -21,9 +21,12 @@ const generateSingleImage = async (payload: GenerateImagesPayload, retries = 2):
     try {
         const { modelFile, otherFiles, userPrompt, quality, aspect } = payload;
 
-        // API Key fallback as requested by the user
-        const k = ["AIzaSyDYNylJiXH2N8bW5VLqk8Fx9n8NoELJm1A"].join("");
-        const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || k;
+        // Use the API key from the environment (Settings -> Secrets)
+        const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+        
+        if (!apiKey) {
+            throw new Error("Vui lòng cấu hình API Key trong phần Settings -> Secrets của AI Studio.");
+        }
         
         const ai = new GoogleGenAI({ apiKey });
 
@@ -137,8 +140,16 @@ const generateSingleImage = async (payload: GenerateImagesPayload, retries = 2):
             return generateSingleImage(payload, retries - 1);
         }
 
-        throw error; // Re-throw if no retries left or not a retryable error
+        const finalError = new Error(handleLeakedKeyError(errorMessage));
+        throw finalError; // Re-throw if no retries left or not a retryable error
     }
+};
+
+const handleLeakedKeyError = (errorMessage: string) => {
+    if (errorMessage.includes("reported as leaked")) {
+        return "API Key của bạn đã bị Google khóa do bị rò rỉ (leaked). Vui lòng tạo một API Key MỚI tại Google AI Studio và cập nhật vào ứng dụng.";
+    }
+    return errorMessage;
 };
 
 
